@@ -43,7 +43,7 @@ We train our models on a V100 GPU platform.
 
 ##### 1. Search stage
 
-Set the variable DATA_ROOT in gnas_search_faster-rcnn_r101_fpn_1x_coco.py to the dataset path, for example, DATA_ROOT='dataset_root_path/daytime_clear'.
+Set the variable DATA_ROOT in [gnas_search_faster-rcnn_r101_fpn_1x_coco.py](https://github.com/wufan-cse/gnas/blob/main/configs/gnas/search/gnas_search_faster-rcnn_r101_fpn_1x_coco.py) to the dataset path, for example, DATA_ROOT='dataset_root_path/daytime_clear'.
 
 ```
 # single gpu
@@ -55,7 +55,7 @@ CUDA_VISIBLE_DEVICES=0,1 bash tools/dist_train.sh configs/nas_sd/search/gnas_sea
 
 ##### 2. Augment stage
 
-Similarly, set the variable DATA_ROOT in gnas_augment_faster-rcnn_r101_fpn_1x_coco.py to your dataset path.
+Similarly, set the variable DATA_ROOT in [gnas_augment_faster-rcnn_r101_fpn_1x_coco.py](https://github.com/wufan-cse/gnas/blob/main/configs/gnas/augment/gnas_augment_faster-rcnn_r101_fpn_1x_coco.py) to your dataset path.
 
 ```
 # single gpu
