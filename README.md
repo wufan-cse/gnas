@@ -75,7 +75,7 @@ Please refer to the inference [instructions](https://mmdetection.readthedocs.io/
 @inproceedings{wu2023gnas,
   title = {G-NAS: Generalizable Neural Architecture Search for Single Domain Generalization Object Detection},
   author = {Wu, Fan and Gao, Jinling and Lanqing, HONG and Wang, Xinbing and Zhou, Chenghu and Ye, Nanyang},
-  booktitle = {The 39th Annual AAAI Conference on Artificial Intelligence},
-  year = {2024,
+  booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence},
+  year = {2024},
 }
 ```
