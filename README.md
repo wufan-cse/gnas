@@ -1,6 +1,6 @@
 # G-NAS: Generalizable Neural Architecture Search for Single Domain Generalization Object Detection
 
-[[Paper]](https://github.com/wufan-cse/gnas/blob/main/paper.pdf)
+[[Paper]](http://arxiv.org/abs/2402.04672)
 
 ### Installation
 
