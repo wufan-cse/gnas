@@ -1,8 +1,6 @@
-# G-NAS: Generalizable Neural Architecture Search for Single Domain Generalization Object Detection
+# G-NAS: Generalizable Neural Architecture Search for Single Domain Generalization Object Detection [[AAAI24 Paper]](http://arxiv.org/abs/2402.04672)
 
 ![Algorithm framework](resources/algorithm_framework.png)
-
-[[Paper]](http://arxiv.org/abs/2402.04672)
 
 ### Installation
 
@@ -27,6 +25,7 @@ Notably, the pytorch and torchvision installation in the third line better follo
 ### Datasets
 
 Download the **Daytime-Sunny**, **Daytime-Foggy**, **Dusk-Rainy**, **Night-Sunny** and **Night-Rainy** datasets from this [link](https://drive.google.com/drive/folders/1IIUnUrJrvFgPzU8D6KtV0CXa8k1eBV9B).
+
 国内用户可以通过[OpenDataLab](https://opendatalab.com/wufan/S-DGOD)下载。
 
 Unzip and format the datasets as follows:
