@@ -4,7 +4,7 @@ from .ae_loss import AssociativeEmbeddingLoss
 from .balanced_l1_loss import BalancedL1Loss, balanced_l1_loss
 from .cross_entropy_loss import (CrossEntropyLoss, binary_cross_entropy,
                                  cross_entropy, mask_cross_entropy)
-from .generalizable_loss import CrossEntropyGLoss, SmoothL1GLoss
+from .generalizable_loss import CrossEntropyGLoss, SmoothL1GLoss, L1GLoss
 from .dice_loss import DiceLoss
 from .eqlv2_loss import EQLV2Loss
 from .focal_loss import FocalLoss, sigmoid_focal_loss
@@ -37,5 +37,5 @@ __all__ = [
     'QualityFocalLoss', 'DistributionFocalLoss', 'VarifocalLoss',
     'KnowledgeDistillationKLDivLoss', 'SeesawLoss', 'DiceLoss', 'EQLV2Loss',
     'MarginL2Loss', 'MultiPosCrossEntropyLoss', 'L2Loss', 'TripletLoss',
-    'CrossEntropyGLoss', 'SmoothL1GLoss'
+    'CrossEntropyGLoss', 'SmoothL1GLoss', 'L1GLoss'
 ]

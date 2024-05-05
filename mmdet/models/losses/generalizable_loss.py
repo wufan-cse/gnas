@@ -9,7 +9,7 @@ from torch import Tensor
 from mmdet.registry import MODELS
 
 from .cross_entropy_loss import binary_cross_entropy, mask_cross_entropy, cross_entropy
-from .smooth_l1_loss import smooth_l1_loss
+from .smooth_l1_loss import smooth_l1_loss, l1_loss
 
 
 @MODELS.register_module()
@@ -137,7 +137,7 @@ class SmoothL1GLoss(nn.Module):
                  beta: float = 1.0,
                  reduction: str = 'mean',
                  loss_weight: float = 1.0,
-                 penalty_weight=1.0,) -> None:
+                 penalty_weight = 1.0) -> None:
         super().__init__()
         self.beta = beta
         self.reduction = reduction
@@ -184,5 +184,67 @@ class SmoothL1GLoss(nn.Module):
             **kwargs)
 
         reg_penalty = self.penalty_weight * (pred ** 2).mean()
+        
+        if loss_bbox - reg_penalty <= 0:
+            return loss_bbox
+        else:
+            return loss_bbox - reg_penalty
 
-        return loss_bbox - reg_penalty
+        
+@MODELS.register_module()
+class L1GLoss(nn.Module):
+    """L1 loss.
+
+    Args:
+        reduction (str, optional): The method to reduce the loss.
+            Options are "none", "mean" and "sum".
+        loss_weight (float, optional): The weight of loss.
+    """
+
+    def __init__(self,
+                 reduction: str = 'mean',
+                 loss_weight: float = 1.0, 
+                 penalty_weight = 1.0) -> None:
+        super().__init__()
+        self.reduction = reduction
+        self.loss_weight = loss_weight
+        self.penalty_weight = penalty_weight
+
+    def forward(self,
+                pred: Tensor,
+                target: Tensor,
+                weight: Optional[Tensor] = None,
+                avg_factor: Optional[int] = None,
+                reduction_override: Optional[str] = None) -> Tensor:
+        """Forward function.
+
+        Args:
+            pred (Tensor): The prediction.
+            target (Tensor): The learning target of the prediction.
+            weight (Tensor, optional): The weight of loss for each
+                prediction. Defaults to None.
+            avg_factor (int, optional): Average factor that is used to average
+                the loss. Defaults to None.
+            reduction_override (str, optional): The reduction method used to
+                override the original reduction method of the loss.
+                Defaults to None.
+
+        Returns:
+            Tensor: Calculated loss
+        """
+        if weight is not None and not torch.any(weight > 0):
+            if pred.dim() == weight.dim() + 1:
+                weight = weight.unsqueeze(1)
+            return (pred * weight).sum()
+        assert reduction_override in (None, 'none', 'mean', 'sum')
+        reduction = (
+            reduction_override if reduction_override else self.reduction)
+        loss_bbox = self.loss_weight * l1_loss(
+            pred, target, weight, reduction=reduction, avg_factor=avg_factor)
+        
+        reg_penalty = self.penalty_weight * (pred ** 2).mean()
+        
+        if loss_bbox - reg_penalty <= 0:
+            return loss_bbox
+        else:
+            return loss_bbox - reg_penalty

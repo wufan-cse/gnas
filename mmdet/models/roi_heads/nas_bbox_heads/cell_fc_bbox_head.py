@@ -35,8 +35,7 @@ class NASConvFCBBoxHead(BBoxHead):
                  num_shared_convs: int = 0,
                  num_shared_fcs: int = 0,
                  num_cells: int = 0,
-                 num_cls_fcs: int = 0,
-                 num_reg_fcs: int = 0,
+                 num_fcs: int = 0,
                  conv_out_channels: int = 256,
                  fc_out_channels: int = 1024,
                  is_search: bool = True,
@@ -48,28 +47,16 @@ class NASConvFCBBoxHead(BBoxHead):
                  *args,
                  **kwargs) -> None:
         super().__init__(*args, init_cfg=init_cfg, **kwargs)
-        assert (num_shared_convs + num_shared_fcs + num_cells +
-                num_cls_fcs + num_reg_fcs > 0)
-                
-        # assert is_search is False and arch_path is None
-                
-        #if num_cls_cells > 0 or num_reg_convs > 0:
-        #    assert num_shared_fcs == 0
-        #if not self.with_cls:
-        #    assert num_cls_cells == 0 and num_cls_fcs == 0
-        #if not self.with_reg:
-        #    assert num_reg_convs == 0 and num_reg_fcs == 0
+        assert (num_shared_convs + num_shared_fcs + num_cells + num_fcs > 0)
             
         self.is_search = is_search
         self.arch_path = arch_path
 
-        self.num_cells = num_cells
-
         self.num_shared_convs = num_shared_convs
         self.num_shared_fcs = num_shared_fcs
         
-        self.num_cls_fcs = num_cls_fcs
-        self.num_reg_fcs = num_reg_fcs
+        self.num_cells = num_cells
+        self.num_fcs = num_fcs
         
         self.conv_out_channels = conv_out_channels
         self.fc_out_channels = fc_out_channels
@@ -92,15 +79,18 @@ class NASConvFCBBoxHead(BBoxHead):
         self._initialize_alphas(is_search)
         
         # TODO 256 dim
-        self.cells, self.fcs, self.cls_last_dim = \
+        self.cells, self.fcs, self.last_dim = \
             self._add_cell_fc_branch(
-                self.num_cls_cells, self.num_cls_fcs, 64, is_search=is_search, cell_cfg=self.cell_cfg)
+                self.num_cells, self.num_fcs, 64, is_search=is_search, cell_cfg=self.cell_cfg)
 
         if self.num_shared_fcs == 0 and not self.with_avg_pool:
-            if self.num_cls_fcs == 0:
-                self.cls_last_dim *= self.roi_feat_area
-            if self.num_reg_fcs == 0:
-                self.reg_last_dim *= self.roi_feat_area
+            if self.num_fcs == 0:
+                self.cls_last_dim = self.last_dim * self.roi_feat_area
+                self.reg_last_dim = self.last_dim * self.roi_feat_area
+        else:
+            self.cls_last_dim = self.last_dim
+            self.reg_last_dim = self.last_dim
+            
 
         self.relu = nn.ReLU(inplace=True)
         # reconstruct fc_cls and fc_reg since input channels are changed
@@ -124,21 +114,12 @@ class NASConvFCBBoxHead(BBoxHead):
             self.fc_reg = MODELS.build(reg_predictor_cfg_)
 
         if init_cfg is None:
-            # when init_cfg is None,
-            # It has been set to
-            # [[dict(type='Normal', std=0.01, override=dict(name='fc_cls'))],
-            #  [dict(type='Normal', std=0.001, override=dict(name='fc_reg'))]
-            # after `super(ConvFCBBoxHead, self).__init__()`
-            # we only need to append additional configuration
-            # for `shared_fcs`, `cls_fcs` and `reg_fcs`
             self.init_cfg += [
                 dict(
                     type='Xavier',
                     distribution='uniform',
                     override=[
-                        dict(name='shared_fcs'),
-                        dict(name='cls_fcs'),
-                        dict(name='reg_fcs')
+                        dict(name='shared_fcs')
                     ])
             ]
             
@@ -327,10 +308,10 @@ class NASConvFCBBoxHead(BBoxHead):
 
             for fc in self.shared_fcs:
                 x = self.relu(fc(x))
-
+                
         # TODO
         s0 = s1 = self.stem(torch.reshape(x, (-1, 64, 4, 4)))
-        for i, cell in enumerate(self.cls_cells):
+        for i, cell in enumerate(self.cells):
             if self.is_search:
                 if cell.reduction:
                     weights = F.softmax(self.alphas_reduce, dim=-1)
@@ -349,7 +330,7 @@ class NASConvFCBBoxHead(BBoxHead):
             if self.with_avg_pool:
                 x = self.avg_pool(x)
             x = x.flatten(1)
-        for fc in self.cls_fcs:
+        for fc in self.fcs:
             x = self.relu(fc(x))
 
         cls_score = self.fc_cls(x) if self.with_cls else None
@@ -363,10 +344,8 @@ class NASBBoxHead(NASConvFCBBoxHead):
         super().__init__(
             num_shared_convs=0,
             num_shared_fcs=2,
-            num_cls_cells=2,
-            num_cls_fcs=0,
-            num_reg_convs=0,
-            num_reg_fcs=0,
+            num_cells=2,
+            num_fcs=0,
             fc_out_channels=fc_out_channels,
             *args,
             **kwargs)

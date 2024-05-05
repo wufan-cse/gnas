@@ -38,7 +38,8 @@ model = dict(
                 stem_multiplier=3, 
                 drop_prob=0.0),
             loss_cls=dict(
-                type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0))))
+                type='CrossEntropyGLoss', use_sigmoid=False, loss_weight=1.0, penalty_weight=0.5),
+            loss_bbox=dict(type='L1GLoss', loss_weight=1.0, penalty_weight=0.5))))
 
 # dataset settings
 backend_args = None
@@ -102,5 +103,8 @@ test_dataloader = val_dataloader
 val_evaluator = dict(type='VOCMetric', metric='mAP', eval_mode='11points')
 test_evaluator = val_evaluator
 
-
 train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=EPOCH, val_interval=1)
+
+optim_wrapper = dict(
+    type='OptimWrapper',
+    optimizer=dict(type='SGD', lr=LR, momentum=0.9, weight_decay=0.0001))
