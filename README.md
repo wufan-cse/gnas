@@ -1,6 +1,6 @@
 # G-NAS: Generalizable Neural Architecture Search for Single Domain Generalization Object Detection
 
-![Algorithm framework](gnas/resources/algorithm_framework.png)
+![Algorithm framework](resources/algorithm_framework.png)
 
 [[Paper]](http://arxiv.org/abs/2402.04672)
 
@@ -79,9 +79,9 @@ Please refer to the inference [instructions](https://mmdetection.readthedocs.io/
 
 Note: All results are running with FPN.
 
-![Result table](gnas/resources/sdgod_results.png)
+![Result table](resources/sdgod_results.png)
 
-Full results in LaTeX format available [here](gnas/resources/sdgod_results.tex).
+Full results in LaTeX format available [here](resources/sdgod_results.tex).
 
 ### Citation
 
